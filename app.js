@@ -1,13 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
-// import routes
+const HttpError = require("./models/http-error");
 const ROUTES_PLACES = require("./routes/routes-places");
 
 const app = express(); // creates an instance of express
 
-// list of middlewares
+app.use(bodyParser.json());
+
 app.use("/api/places", ROUTES_PLACES);
+
+app.use((req, res, next) => {
+  const error = new HttpError("Could not find this route", 404);
+  throw error;
+});
 
 // special: error handling middleware
 app.use((error, req, res, next) => {

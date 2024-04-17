@@ -1,53 +1,20 @@
 const express = require("express");
 
-const HttpError = require("../models/http-error");
+const PLACE_CONTROLLERS = require("../controllers/controllers-places");
 
 const router = express.Router();
 
-const DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "World Trade Center",
-    description: "One of the most famous sky scrappers in the world!",
-    address: "Manhattan, New York, NY 10001",
-    coordinates: {
-      lat: 40.71288220988469,
-      lng: -74.01339054302295,
-    },
-    creatorId: "u1",
-  },
-];
-
 // note: order matters when traversing through paths
-router.get("/:pid", (req, res, next) => {
-  const placeId = req.params.pid;
+router.get("/:pid", PLACE_CONTROLLERS.GET__placeById);
 
-  const place = DUMMY_PLACES.find((place) => {
-    return place.id === placeId;
-  });
+router.get("/user/:uid", PLACE_CONTROLLERS.GET__placesByUserId);
 
-  if (!place) {
-    throw new HttpError("No Place found for the provided place ID.", 404); //no need return
-  }
+router.post("/", PLACE_CONTROLLERS.POST__createPlace);
 
-  res.json({ place });
-});
+router.patch("/:pid", PLACE_CONTROLLERS.PATCH__updatePlaceById);
 
-router.get("/user/:uid", (req, res, next) => {
-  const userId = req.params.uid;
+router.delete("/:pid", PLACE_CONTROLLERS.DELETE__placeById);
 
-  const place = DUMMY_PLACES.find((place) => {
-    return place.creatorId === userId;
-  });
-
-  if (!place) {
-    return next(
-      new HttpError("No Place found for the provided user ID.", 404)
-    );
-  }
-
-  res.json({ place });
-});
 // insert more here...
 
 module.exports = router;
