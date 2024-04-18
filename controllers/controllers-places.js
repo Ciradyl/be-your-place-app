@@ -2,6 +2,8 @@
 // const uuid = require("uuid/v4");
 // v4 is no longer supported
 const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
+
 const HttpError = require("../models/http-error");
 
 let DUMMY_PLACES = [
@@ -38,13 +40,21 @@ const GET__placesByUserId = (req, res, next) => {
   const places = DUMMY_PLACES.filter((place) => place.creatorId === userId);
 
   if (!places || places.length === 0) {
-    return next(new HttpError("No Places found for the provided user ID.", 404));
+    return next(
+      new HttpError("No Places found for the provided user ID.", 404)
+    );
   }
 
   res.json({ places });
 };
 
 const POST__createPlace = (req, res, next) => {
+  const errors = validationResult(req); // detect validation errors
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    throw new HttpError("Invalid inputs passed, pelase check your data.", 422);
+  }
+
   const { title, description, coordinates, address, creatorId } = req.body;
   const createdPlace = {
     id: uuidv4(),
@@ -61,6 +71,12 @@ const POST__createPlace = (req, res, next) => {
 };
 
 const PATCH__updatePlaceById = (req, res, next) => {
+  const errors = validationResult(req); // detect validation errors
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    throw new HttpError("Invalid inputs passed, pelase check your data.", 422);
+  }
+
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
@@ -76,6 +92,11 @@ const PATCH__updatePlaceById = (req, res, next) => {
 
 const DELETE__placeById = (req, res, next) => {
   const placeId = req.params.pid;
+
+  if (DUMMY_PLACES.find((place) => place.id !== placeId)) {
+    throw new HttpError("Could not find a place for that id.", 404);
+  }
+
   DUMMY_PLACES = DUMMY_PLACES.filter((place) => place.id !== placeId);
 
   res.status(200).json({ message: "Deleted place." });
