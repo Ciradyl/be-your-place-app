@@ -15,7 +15,7 @@ router.post(
   [
     check("title").not().isEmpty(),
     check("description").isLength({ min: 5 }),
-    check("coordinates").not().isEmpty(),
+    // check("coordinates").not().isEmpty(),
   ],
   PLACE_CONTROLLERS.POST__createPlace
 );

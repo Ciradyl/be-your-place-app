@@ -4,6 +4,7 @@
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 
+const getCoordinatesForAddress = require("../util/util-coordinates.js");
 const HttpError = require("../models/http-error");
 
 let DUMMY_PLACES = [
@@ -48,14 +49,24 @@ const GET__placesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-const POST__createPlace = (req, res, next) => {
+const POST__createPlace = async (req, res, next) => {
   const errors = validationResult(req); // detect validation errors
   if (!errors.isEmpty()) {
-    console.log(errors);
-    throw new HttpError("Invalid inputs passed, pelase check your data.", 422);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
   }
 
-  const { title, description, coordinates, address, creatorId } = req.body;
+  const { title, description, address, creatorId } = req.body;
+
+  //Geocoder API
+  let coordinates;
+  try {
+    coordinates = await getCoordinatesForAddress(address);
+  } catch (error) {
+    return next(error);
+  }
+
   const createdPlace = {
     id: uuidv4(),
     title,
@@ -74,7 +85,9 @@ const PATCH__updatePlaceById = (req, res, next) => {
   const errors = validationResult(req); // detect validation errors
   if (!errors.isEmpty()) {
     console.log(errors);
-    throw new HttpError("Invalid inputs passed, pelase check your data.", 422);
+    return next(
+      new HttpError("Invalid inputs passed, pelase check your data.", 422)
+    );
   }
 
   const { title, description } = req.body;
