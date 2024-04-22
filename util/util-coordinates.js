@@ -2,8 +2,6 @@ const axios = require("axios");
 
 const HttpError = require("../models/http-error");
 
-const { response } = require("express");
-
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1Ijoia2Vya3phcnQiLCJhIjoiY2x1MjRoNWg4MHRjeTJrbjBtMnVwNDFjeiJ9.--nVupO0004ghQeRW1USYw";
 
@@ -14,7 +12,6 @@ const getCoordinatesForAddress = async (address) => {
   const response = await axios.get(
     `https://api.mapbox.com/search/geocode/v6/forward?q=${encodeURIComponent(address)}&access_token=${MAPBOX_ACCESS_TOKEN}`
   );
-
   const data = response.data;
 
   if (!data) {
