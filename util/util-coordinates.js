@@ -1,16 +1,17 @@
 const axios = require("axios");
 
 const HttpError = require("../models/http-error");
-
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1Ijoia2Vya3phcnQiLCJhIjoiY2x1MjRoNWg4MHRjeTJrbjBtMnVwNDFjeiJ9.--nVupO0004ghQeRW1USYw";
+require("dotenv").config();
 
 const getCoordinatesForAddress = async (address) => {
+  const ENCODED_ADDRESS_URI = encodeURIComponent(address);
+  const ENCODED_MAPBOX_ACCESS_TOKEN_URI = encodeURIComponent(process.env.MAPBOX_ACCESS_TOKEN)
+
   // Forward Geocoding API
   // Looks for address then converts it into coordinates
   // default: has autoComplete on
   const response = await axios.get(
-    `https://api.mapbox.com/search/geocode/v6/forward?q=${encodeURIComponent(address)}&access_token=${MAPBOX_ACCESS_TOKEN}`
+    `https://api.mapbox.com/search/geocode/v6/forward?q=${ENCODED_ADDRESS_URI}&access_token=${ENCODED_MAPBOX_ACCESS_TOKEN_URI}`
   );
   const data = response.data;
 
@@ -28,4 +29,4 @@ const getCoordinatesForAddress = async (address) => {
   return coordinates;
 };
 
-module.exports = getCoordinatesForAddress
+module.exports = getCoordinatesForAddress;

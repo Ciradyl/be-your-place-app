@@ -6,6 +6,7 @@ const { validationResult } = require("express-validator");
 
 const getCoordinatesForAddress = require("../util/util-coordinates.js");
 const HttpError = require("../models/http-error");
+const Place = require("../models/models-place.js");
 
 let DUMMY_PLACES = [
   {
@@ -67,16 +68,38 @@ const POST__createPlace = async (req, res, next) => {
     return next(error);
   }
 
-  const createdPlace = {
-    id: uuidv4(),
+  // since getCoordinatesForAddress returns an array
+  // we set the values of lat and lng
+  // by getting them as objects
+  const lat = coordinates[1];
+  const lng = coordinates[0];
+
+  const createdPlace = new Place({
     title,
     description,
-    coordinates,
     address,
+    coordinates: {
+      lat,
+      lng,
+    },
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/c/c5/World_Trade_Center%2C_New_York_City_-_aerial_view_%28March_2001%29.jpg",
     creatorId,
-  };
+  });
 
-  DUMMY_PLACES.push(createdPlace);
+  // note: store new document
+  // a promise; needs async await
+  try {
+    await createdPlace.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Place creation failed, please try again.",
+      500
+    );
+    console.log(createdPlace.save());
+    console.log(coordinates);
+    return next(error);
+  }
 
   res.status(201).json({ place: createdPlace });
 };

@@ -6,6 +6,8 @@ const HttpError = require("./models/http-error");
 const ROUTES_PLACES = require("./routes/routes-places");
 const ROUTES_USERS = require("./routes/routes-users");
 
+require("dotenv").config();
+
 const app = express(); // creates an instance of express
 
 app.use(bodyParser.json());
@@ -29,9 +31,7 @@ app.use((error, req, res, next) => {
 // insert more here...
 
 mongoose
-  .connect(
-    "mongodb+srv://ghoul:falloutwinter@cluster0.fjqpomv.mongodb.net/?retryWrites=true&w=majority&appName=places"
-  )
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     app.listen(5000);
   })
