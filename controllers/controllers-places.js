@@ -22,32 +22,56 @@ let DUMMY_PLACES = [
   },
 ];
 
-const GET__placeById = (req, res, next) => {
+const GET__placeById = async (req, res, next) => {
   const placeId = req.params.pid;
 
-  const place = DUMMY_PLACES.find((place) => {
-    return place.id === placeId;
-  });
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong, could not find a place.",
+      500
+    );
+    return next(error);
+  }
 
   if (!place) {
-    throw new HttpError("No Place found for the provided place ID.", 404); //no need return
+    const error = new HttpError(
+      "No Place found for the provided place ID.",
+      404
+    );
+    return next(error);
   }
 
-  res.json({ place });
+  res.json({ place: place.toObject({ getters: true }) });
 };
 
-const GET__placesByUserId = (req, res, next) => {
+const GET__placesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  const places = DUMMY_PLACES.filter((place) => place.creatorId === userId);
-
-  if (!places || places.length === 0) {
-    return next(
-      new HttpError("No Places found for the provided user ID.", 404)
+  let places;
+  try {
+    places = await Place.find({ creatorId: userId });
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong, could not find places for that user.",
+      500
     );
+    return next(error);
   }
 
-  res.json({ places });
+  if (!places || places.length === 0) {
+    const error = new HttpError(
+      "No Places found for the provided user ID.",
+      404
+    );
+    return next(error);
+  }
+
+  res.json({
+    places: places.map((place) => place.toObject({ getters: true })),
+  });
 };
 
 const POST__createPlace = async (req, res, next) => {
@@ -104,7 +128,7 @@ const POST__createPlace = async (req, res, next) => {
   res.status(201).json({ place: createdPlace });
 };
 
-const PATCH__updatePlaceById = (req, res, next) => {
+const PATCH__updatePlaceById = async (req, res, next) => {
   const errors = validationResult(req); // detect validation errors
   if (!errors.isEmpty()) {
     console.log(errors);
@@ -116,26 +140,60 @@ const PATCH__updatePlaceById = (req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
-  const updatePlace = { ...DUMMY_PLACES.find((place) => place.id === placeId) };
-  const placeIndex = DUMMY_PLACES.findIndex((place) => place.id === placeId);
-  updatePlace.title = title;
-  updatePlace.description = description;
-
-  DUMMY_PLACES[placeIndex] = updatePlace;
-
-  res.status(200).json({ place: updatePlace });
-};
-
-const DELETE__placeById = (req, res, next) => {
-  const placeId = req.params.pid;
-
-  if (DUMMY_PLACES.find((place) => place.id !== placeId)) {
-    throw new HttpError("Could not find a place for that id.", 404);
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong, could not update place.",
+      500
+    );
+    return next(error);
   }
 
-  DUMMY_PLACES = DUMMY_PLACES.filter((place) => place.id !== placeId);
+  place.title = title;
+  place.description = description;
 
-  res.status(200).json({ message: "Deleted place." });
+  try {
+    await place.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong, could not update place.",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ place: place.toObject({ getters: true }) });
+};
+
+const DELETE__placeById = async (req, res, next) => {
+  const placeId = req.params.pid;
+
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (e) {
+    console.log(e);
+    const error = new HttpError(
+      "Something went wrong, could not delete place.",
+      500
+    );
+    return next(error);
+  }
+
+  try {
+    await place.deleteOne() //old: place.remove()
+  } catch (e) {
+    console.log(e);
+    const error = new HttpError(
+      "Something went wrong, could not delete place.",
+      500
+    );
+    return next(error)
+  }
+
+  res.status(200).json({ message: "Successfully deleted the place." });
 };
 
 exports.GET__placeById = GET__placeById;
