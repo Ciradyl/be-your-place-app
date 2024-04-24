@@ -11,7 +11,7 @@ const placeSchema = new Schema({
     lng: { type: Number, required: true },
   },
   imageUrl: { type: String, required: true },
-  creatorId: { type: String, required: true },
+  creatorId: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
 });
 
 //note: plural model name; contructor function

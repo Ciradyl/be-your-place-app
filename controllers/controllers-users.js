@@ -40,7 +40,7 @@ const POST__signup = async (req, res, next) => {
     );
   }
 
-  const { name, emailAddress, password, places } = req.body;
+  const { name, emailAddress, password } = req.body;
 
   let existingUser;
   try {
@@ -61,7 +61,7 @@ const POST__signup = async (req, res, next) => {
     password,
     image:
       "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=200",
-    places,
+    places: [],
   });
 
   // note: store new document
