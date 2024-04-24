@@ -3,10 +3,12 @@
 // v4 is no longer supported
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 
 const getCoordinatesForAddress = require("../util/util-coordinates.js");
 const HttpError = require("../models/http-error");
 const Place = require("../models/models-place.js");
+const User = require("../models//models-user.js");
 
 let DUMMY_PLACES = [
   {
@@ -111,17 +113,46 @@ const POST__createPlace = async (req, res, next) => {
     creatorId,
   });
 
+  // check if user id exists
+  let user;
+  try {
+    user = await User.findById(creatorId);
+  } catch (e) {
+    const error = new HttpError(
+      "Creating place failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError(
+      "Could not find user for the provided id.",
+      404
+    );
+    return next(error);
+  }
+
   // note: store new document
   // a promise; needs async await
   try {
-    await createdPlace.save();
+    const currentSession = await mongoose.startSession();
+    currentSession.startTransaction();
+    await createdPlace.save({ session: currentSession });
+
+    console.log(user.places);
+    user.places.push(createdPlace); // mongoose: establish a connection between two models
+    await user.save({ session: currentSession });
+
+    // once the transaction is committed
+    // it will then save the created place
+    await currentSession.commitTransaction();
   } catch (e) {
     const error = new HttpError(
       "Place creation failed, please try again.",
       500
     );
-    console.log(createdPlace.save());
-    console.log(coordinates);
+    console.log(e);
     return next(error);
   }
 
@@ -183,14 +214,14 @@ const DELETE__placeById = async (req, res, next) => {
   }
 
   try {
-    await place.deleteOne() //old: place.remove()
+    await place.deleteOne(); //old: place.remove()
   } catch (e) {
     console.log(e);
     const error = new HttpError(
       "Something went wrong, could not delete place.",
       500
     );
-    return next(error)
+    return next(error);
   }
 
   res.status(200).json({ message: "Successfully deleted the place." });
