@@ -10,20 +10,6 @@ const HttpError = require("../models/http-error");
 const Place = require("../models/models-place.js");
 const User = require("../models//models-user.js");
 
-let DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "World Trade Center",
-    description: "One of the most famous sky scrappers in the world!",
-    address: "Manhattan, New York, NY 10001",
-    coordinates: {
-      lat: 40.71288220988469,
-      lng: -74.01339054302295,
-    },
-    creatorId: "u1",
-  },
-];
-
 const GET__placeById = async (req, res, next) => {
   const placeId = req.params.pid;
 
@@ -140,7 +126,6 @@ const POST__createPlace = async (req, res, next) => {
     currentSession.startTransaction();
     await createdPlace.save({ session: currentSession });
 
-    console.log(user.places);
     user.places.push(createdPlace); // mongoose: establish a connection between two models
     await user.save({ session: currentSession });
 
@@ -152,7 +137,6 @@ const POST__createPlace = async (req, res, next) => {
       "Place creation failed, please try again.",
       500
     );
-    console.log(e);
     return next(error);
   }
 
@@ -162,7 +146,6 @@ const POST__createPlace = async (req, res, next) => {
 const PATCH__updatePlaceById = async (req, res, next) => {
   const errors = validationResult(req); // detect validation errors
   if (!errors.isEmpty()) {
-    console.log(errors);
     return next(
       new HttpError("Invalid inputs passed, pelase check your data.", 422)
     );
@@ -205,7 +188,6 @@ const DELETE__placeById = async (req, res, next) => {
   try {
     place = await Place.findById(placeId).populate("creatorId"); //requires two ref between two models
   } catch (e) {
-    console.log(e);
     const error = new HttpError(
       "Something went wrong, could not delete place.",
       500

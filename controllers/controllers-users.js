@@ -7,15 +7,6 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const User = require("../models/models-user.js");
 
-DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "John Smith",
-    emailAddress: "john.smith@gmail.com",
-    password: "test12345",
-  },
-];
-
 const GET__users = async (req, res, next) => {
   let users;
   try {
@@ -34,7 +25,6 @@ const GET__users = async (req, res, next) => {
 const POST__signup = async (req, res, next) => {
   const errors = validationResult(req); // detect validation errors
   if (!errors.isEmpty()) {
-    console.log(errors);
     return next(
       new HttpError("Invalid inputs passed, pelase check your data.", 422)
     );
@@ -70,7 +60,6 @@ const POST__signup = async (req, res, next) => {
     await createdUser.save();
   } catch (e) {
     const error = new HttpError("Signup failed, please try again.", 500);
-    console.log(createdUser.save());
     return next(error);
   }
 
@@ -89,7 +78,6 @@ const POST__login = async (req, res, next) => {
   }
 
   if (!existingUser || existingUser.password !== password) {
-    console.log(existingUser, existingUser.password, password);
     const error = new HttpError(
       "You have entered an invalid credential, please try again.",
       401
