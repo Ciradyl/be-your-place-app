@@ -12,6 +12,18 @@ const app = express(); // creates an instance of express
 
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  // initalize headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+
+  next();
+});
+
 app.use("/api/places", ROUTES_PLACES);
 app.use("/api/users", ROUTES_USERS);
 
