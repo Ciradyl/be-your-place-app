@@ -26,7 +26,7 @@ const POST__signup = async (req, res, next) => {
   const errors = validationResult(req); // detect validation errors
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, pelase check your data.", 422)
+      new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
 
