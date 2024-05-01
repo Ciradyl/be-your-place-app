@@ -32,7 +32,7 @@ const GET__placeById = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ place: place.toObject({ getters: true }) });
+  res.json({ places: place.toObject({ getters: true }) });
 };
 
 const GET__placesByUserId = async (req, res, next) => {
