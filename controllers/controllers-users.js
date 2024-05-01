@@ -85,7 +85,10 @@ const POST__login = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ message: "logged in!" });
+  res.json({
+    message: "logged in!",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 exports.GET__users = GET__users;
