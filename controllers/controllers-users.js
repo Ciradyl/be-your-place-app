@@ -49,11 +49,10 @@ const POST__signup = async (req, res, next) => {
     name,
     emailAddress,
     password,
-    image:
-      "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=200",
+    image: req.file.path,
     places: [],
   });
-
+  console.log("SIGN-UP:: File: ", req.file.path);
   // note: store new document
   // a promise; needs async await
   try {

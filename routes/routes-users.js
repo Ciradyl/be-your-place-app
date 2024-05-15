@@ -11,7 +11,7 @@ router.get("/", USER_CONTROLLERS.GET__users);
 
 router.post(
   "/signup",
-  fileUpload.single('image'),
+  fileUpload.single("image"),
   [
     check("name").not().isEmpty(),
     check("emailAddress").normalizeEmail().isEmail(),
