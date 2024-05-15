@@ -1,7 +1,5 @@
-// note:
-// const uuid = require("uuid/v4");
-// v4 is no longer supported
-const { v4: uuidv4 } = require("uuid");
+const fs = require("fs");
+
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
@@ -199,6 +197,8 @@ const DELETE__placeById = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     const currentSession = await mongoose.startSession();
     currentSession.startTransaction();
@@ -217,7 +217,10 @@ const DELETE__placeById = async (req, res, next) => {
     );
     return next(error);
   }
-
+  fs.unlink(imagePath, (error) => {
+    console.log(error);
+  });
+  
   res.status(200).json({ message: "Successfully deleted the place." });
 };
 
