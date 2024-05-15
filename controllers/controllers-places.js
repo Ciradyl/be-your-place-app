@@ -94,8 +94,7 @@ const POST__createPlace = async (req, res, next) => {
       lat,
       lng,
     },
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/c/c5/World_Trade_Center%2C_New_York_City_-_aerial_view_%28March_2001%29.jpg",
+    image: req.file.path,
     creatorId,
   });
 
