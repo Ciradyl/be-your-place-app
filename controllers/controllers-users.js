@@ -80,7 +80,7 @@ const POST__signup = async (req, res, next) => {
         userId: createdUser.id,
         emailAddress: createdUser.emailAddress,
       },
-      "geiger_counter",
+      "supersecret_secret_secrets",
       { expiresIn: "1h" }
     );
   } catch (e) {
@@ -140,7 +140,7 @@ const POST__login = async (req, res, next) => {
         userId: existingUser.id,
         emailAddress: existingUser.emailAddress,
       },
-      "geiger_counter",
+      "supersecret_secret_secrets",
       { expiresIn: "1h" }
     );
   } catch (e) {
