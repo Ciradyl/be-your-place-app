@@ -3,6 +3,8 @@
 // v4 is no longer supported
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/models-user.js");
@@ -45,14 +47,23 @@ const POST__signup = async (req, res, next) => {
     return next(error);
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (e) {
+    const error = new HttpError(
+      "Could not create user, please try again.",
+      500
+    );
+    return next(error);
+  }
   const createdUser = new User({
     name,
     emailAddress,
-    password,
+    password: hashedPassword,
     image: req.file.path,
     places: [],
   });
-  console.log("SIGN-UP:: File: ", req.file.path);
   // note: store new document
   // a promise; needs async await
   try {
@@ -62,7 +73,26 @@ const POST__signup = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      {
+        userId: createdUser.id,
+        emailAddress: createdUser.emailAddress,
+      },
+      "geiger_counter",
+      { expiresIn: "1h" }
+    );
+  } catch (e) {
+    const error = new HttpError("Signup failed, please try again.", 500);
+    return next(error);
+  }
+
+  res.status(201).json({
+    userId: createdUser.id,
+    emailAddress: createdUser.emailAddress,
+    token: token,
+  });
 };
 
 const POST__login = async (req, res, next) => {
@@ -76,7 +106,7 @@ const POST__login = async (req, res, next) => {
     return next(error);
   }
 
-  if (!existingUser || existingUser.password !== password) {
+  if (!existingUser) {
     const error = new HttpError(
       "You have entered an invalid credential, please try again.",
       401
@@ -84,9 +114,45 @@ const POST__login = async (req, res, next) => {
     return next(error);
   }
 
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
+  } catch (e) {
+    const error = new HttpError(
+      "Could not login, Please check your credentials and try again.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!isValidPassword) {
+    const error = new HttpError(
+      "You have entered an invalid credential, please try again.",
+      401
+    );
+    return next(error);
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      {
+        userId: existingUser.id,
+        emailAddress: existingUser.emailAddress,
+      },
+      "geiger_counter",
+      { expiresIn: "1h" }
+    );
+  } catch (e) {
+    const error = new HttpError("Login failed, please try again.", 500);
+    return next(error);
+  }
+
   res.json({
     message: "logged in!",
-    user: existingUser.toObject({ getters: true }),
+    userId: existingUser.id,
+    emailAddress: existingUser.emailAddress,
+    token: token,
   });
 };
 
