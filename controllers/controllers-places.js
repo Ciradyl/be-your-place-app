@@ -162,6 +162,14 @@ const PATCH__updatePlaceById = async (req, res, next) => {
     return next(error);
   }
 
+  if (place.creatorId.toString() !== req.userData.userId) {
+    const error = new HttpError(
+      "You are unauthorized to modify this place.",
+      401
+    );
+    return next(error);
+  }
+
   place.title = title;
   place.description = description;
 
@@ -197,6 +205,14 @@ const DELETE__placeById = async (req, res, next) => {
     return next(error);
   }
 
+  if (place.creatorId.id !== req.userData.userId) {
+    const error = new HttpError(
+      "You are unauthorized to delete this place.",
+      401
+    );
+    return next(error);
+  }
+
   const imagePath = place.image;
 
   try {
@@ -220,7 +236,7 @@ const DELETE__placeById = async (req, res, next) => {
   fs.unlink(imagePath, (error) => {
     console.log(error);
   });
-  
+
   res.status(200).json({ message: "Successfully deleted the place." });
 };
 
