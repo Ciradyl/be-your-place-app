@@ -68,7 +68,7 @@ const POST__createPlace = async (req, res, next) => {
     );
   }
 
-  const { title, description, address, creatorId } = req.body;
+  const { title, description, address } = req.body;
 
   //Geocoder API
   let coordinates;
@@ -93,13 +93,13 @@ const POST__createPlace = async (req, res, next) => {
       lng,
     },
     image: req.file.path,
-    creatorId,
+    creatorId: req.userData.userId,
   });
 
   // check if user id exists
   let user;
   try {
-    user = await User.findById(creatorId);
+    user = await User.findById(req.userData.userId);
   } catch (e) {
     const error = new HttpError(
       "Creating place failed, please try again later.",
