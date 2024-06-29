@@ -80,7 +80,7 @@ const POST__signup = async (req, res, next) => {
         userId: createdUser.id,
         emailAddress: createdUser.emailAddress,
       },
-      "supersecret_secret_secrets",
+      process.env.JWT_KEY,
       { expiresIn: "1h" }
     );
   } catch (e) {
@@ -140,7 +140,7 @@ const POST__login = async (req, res, next) => {
         userId: existingUser.id,
         emailAddress: existingUser.emailAddress,
       },
-      "supersecret_secret_secrets",
+      process.env.JWT_KEY,
       { expiresIn: "1h" }
     );
   } catch (e) {

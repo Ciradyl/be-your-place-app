@@ -53,7 +53,9 @@ app.use((error, req, res, next) => {
 // insert more here...
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(
+    `mongodb+srv://${process.env.YOUR_PLACE_DB_USER}:${process.env.YOUR_PLACE_DB_PASSWORD}@cluster0.bfxxivc.mongodb.net/${process.env.YOUR_PLACE_DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
+  )
   .then(() => {
     app.listen(5000);
   })

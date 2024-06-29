@@ -1,0 +1,9 @@
+{
+    "env": {
+        "YOUR_PLACE_DB_USER": "ghoul",
+        "YOUR_PLACE_DB_PASSWORD": "falloutwinter",
+        "YOUR_PLACE_DB_NAME": "mern",
+        "MAPBOX_ACCESS_TOKEN": "pk.eyJ1Ijoia2Vya3phcnQiLCJhIjoiY2x1MjRoNWg4MHRjeTJrbjBtMnVwNDFjeiJ9.--nVupO0004ghQeRW1USYw",
+        "JWT_KEY": "supersecret_secret_secrets"
+    }
+}
